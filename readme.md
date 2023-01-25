@@ -17,7 +17,7 @@ Requirements:
 - [tflint](https://github.com/terraform-linters/tflint)
 - [checkov](https://www.checkov.io/) (could be installed via pipenv)
 
- 
+
 # Install and setup the environment
 pip install --user --upgrade \
   pre-commit \
@@ -25,4 +25,3 @@ pip install --user --upgrade \
 
 # Ensuring that pre-commit watch this repository
 pre-commit install
- 
