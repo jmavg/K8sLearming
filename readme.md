@@ -16,7 +16,7 @@ Requirements:
 - [terraform-docs](https://github.com/terraform-docs/terraform-docs)
 - [tflint](https://github.com/terraform-linters/tflint)
 - [checkov](https://www.checkov.io/) (could be installed via pipenv)
-- [ansible]
+- ansible
 
 
 # Install and setup the environment
