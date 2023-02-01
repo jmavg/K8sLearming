@@ -4,7 +4,7 @@
 terraform {
   required_providers {
     aws = {
-      source = "hashicorp/aws"
+      source  = "hashicorp/aws"
       version = "4.52.0"
     }
   }
@@ -16,7 +16,7 @@ provider "aws" {
 }
 
 # Create the project's VPC
-resource "aws_vpc" "project"{
+resource "aws_vpc" "project" {
   cidr_block = "10.202.0.0/16"
   tags = {
     Name = "Project"
@@ -69,18 +69,18 @@ resource "aws_security_group" "project" {
   vpc_id      = aws_vpc.project.id
 
   ingress {
-    description      = "SSH for Ansible"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "SSH for Ansible"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -103,13 +103,13 @@ resource "aws_eip" "project" {
 
 # Create EC2 instance
 resource "aws_instance" "project" {
-  ami = "ami-0aa7d40eeae50c9a9"
+  ami           = "ami-0aa7d40eeae50c9a9"
   instance_type = "t2.micro"
-  key_name = "Project"
+  key_name      = "Project"
 
   network_interface {
     network_interface_id = aws_network_interface.project.id
-    device_index = 0
+    device_index         = 0
   }
 
   tags = {
@@ -118,7 +118,7 @@ resource "aws_instance" "project" {
 }
 
 # Output to Ansible hosts file
-resource "local_file" "putblic_ip"{
-  content = aws_instance.project.public_ip
+resource "local_file" "putblic_ip" {
+  content  = aws_instance.project.public_ip
   filename = "hosts"
 }
