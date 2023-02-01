@@ -11,7 +11,9 @@ terraform {
 }
 
 # Configure the AWS Provider
-provider "aws" {}
+provider "aws" {
+  region = "us-east-1"
+}
 
 # Create the project's VPC
 resource "aws_vpc" "project"{
@@ -35,7 +37,7 @@ resource "aws_route_table" "project" {
   vpc_id = aws_vpc.project.id
 
   route {
-    cidr_block = "10.202.0.0/24"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.project.id
   }
 
@@ -67,7 +69,7 @@ resource "aws_security_group" "project" {
   vpc_id      = aws_vpc.project.id
 
   ingress {
-    description      = "TLS from VPC"
+    description      = "SSH for Ansible"
     from_port        = 22
     to_port          = 22
     protocol         = "tcp"
@@ -103,7 +105,7 @@ resource "aws_eip" "project" {
 resource "aws_instance" "project" {
   ami = "ami-0aa7d40eeae50c9a9"
   instance_type = "t2.micro"
-  key_name = ""
+  key_name = "Project"
 
   network_interface {
     network_interface_id = aws_network_interface.project.id
