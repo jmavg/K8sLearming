@@ -6,11 +6,11 @@
     - name: Set-up Webservers
       ansible.builtin.include_role:
         name: webserver
-    
+
     - name: Restart NGINX
       ansible.builtin.service:
         name: nginx
-        state: restarted 
+        state: restarted
 
 # Configure load balancer
 - name: load balancer

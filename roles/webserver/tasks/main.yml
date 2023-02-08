@@ -14,4 +14,3 @@
     dest: /usr/share/nginx/html/index.html
   notify:
     - Index Changed
-

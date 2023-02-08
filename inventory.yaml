@@ -6,4 +6,3 @@ webserver:
 loadbalancer:
   hosts:
     34.231.239.156:
-        

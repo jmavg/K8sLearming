@@ -139,7 +139,7 @@ resource "aws_network_interface" "project" {
   count = local.quantity
   subnet_id       = aws_subnet.project.id
   private_ips     = ["10.202.0.10${count.index}"]
-  security_groups = (count.index == 0 ? [aws_security_group.loadbalancers.id] : [aws_security_group.servers.id])  
+  security_groups = (count.index == 0 ? [aws_security_group.loadbalancers.id] : [aws_security_group.servers.id])
 }
 
 # Create elastic IP
@@ -164,5 +164,3 @@ resource "aws_instance" "project" {
     Name = (count.index == 0 ? "Loadbalancer" : "Webserver${count.index}")
   }
 }
-
-
