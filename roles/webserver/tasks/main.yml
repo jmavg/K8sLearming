@@ -1,0 +1,17 @@
+---
+# tasks file for webserver
+- name: Install epel-release
+  ansible.builtin.command: amazon-linux-extras install epel -y
+
+- name: Install NGINX
+  ansible.builtin.package:
+    name: nginx
+    state: latest
+
+- name: Copy index.html
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /usr/share/nginx/html/index.html
+  notify:
+    - Index Changed
+

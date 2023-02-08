@@ -1,0 +1,14 @@
+---
+# tasks file for webserver
+- name: Install epel-release
+  ansible.builtin.command: amazon-linux-extras install epel -y
+
+- name: Install NGINX
+  ansible.builtin.package:
+    name: nginx
+    state: latest
+
+- name: Copy nginx.conf
+  ansible.builtin.copy:
+    src: loadbalance.conf
+    dest: /etc/nginx/conf.d/loadbalance.conf

@@ -1,6 +1,4 @@
-# Structure for a one time project with 1 instance
-
-
+# Structure for a one time project with x instance(s)
 terraform {
   required_providers {
     aws = {
@@ -9,6 +7,12 @@ terraform {
     }
   }
 }
+
+# Generate map for instance quantity
+locals {
+  quantity = 3
+}
+
 
 # Configure the AWS Provider
 provider "aws" {
@@ -50,7 +54,7 @@ resource "aws_route_table" "project" {
 resource "aws_subnet" "project" {
   vpc_id     = aws_vpc.project.id
   cidr_block = "10.202.0.0/24"
-
+  map_public_ip_on_launch = "true"
   tags = {
     Name = "Project"
   }
@@ -62,10 +66,10 @@ resource "aws_route_table_association" "project" {
   route_table_id = aws_route_table.project.id
 }
 
-# Create group access for SSH
-resource "aws_security_group" "project" {
-  name        = "allow_ssh"
-  description = "Allow SSH inbound traffic"
+# Create group access for backend
+resource "aws_security_group" "servers" {
+  name        = "webservers"
+  description = "Allow SSH public inbound traffic and private HTTP access"
   vpc_id      = aws_vpc.project.id
 
   ingress {
@@ -73,7 +77,15 @@ resource "aws_security_group" "project" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["184.161.137.106/32"]
+  }
+
+  ingress {
+    description = "http internal access"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["34.231.239.156/32"]
   }
 
   egress {
@@ -84,41 +96,73 @@ resource "aws_security_group" "project" {
   }
 
   tags = {
-    Name = "project allow_ssh"
+    Name = "webservers"
+  }
+}
+
+# Create group access for loadbalancers access
+resource "aws_security_group" "loadbalancers" {
+  name        = "allow_http_ssh"
+  description = "Allow http and ssh inbound traffic"
+  vpc_id      = aws_vpc.project.id
+
+  ingress {
+    description = "http external access"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["184.161.137.106/32"]
+  }
+
+  ingress {
+    description = "ssh for ansible"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["184.161.137.106/32"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "loadbalancers"
   }
 }
 
 # Create network interface
 resource "aws_network_interface" "project" {
+  count = local.quantity
   subnet_id       = aws_subnet.project.id
-  private_ips     = ["10.202.0.10"]
-  security_groups = [aws_security_group.project.id]
+  private_ips     = ["10.202.0.10${count.index}"]
+  security_groups = (count.index == 0 ? [aws_security_group.loadbalancers.id] : [aws_security_group.servers.id])  
 }
 
 # Create elastic IP
 resource "aws_eip" "project" {
-  instance = aws_instance.project.id
+  instance = aws_instance.project[0].id
   vpc      = true
 }
 
 # Create EC2 instance
 resource "aws_instance" "project" {
+  count = local.quantity
   ami           = "ami-0aa7d40eeae50c9a9"
   instance_type = "t2.micro"
   key_name      = "Project"
 
   network_interface {
-    network_interface_id = aws_network_interface.project.id
+    network_interface_id = aws_network_interface.project[count.index].id
     device_index         = 0
   }
 
   tags = {
-    Name = "Project"
+    Name = (count.index == 0 ? "Loadbalancer" : "Webserver${count.index}")
   }
 }
 
-# Output to Ansible hosts file
-resource "local_file" "putblic_ip" {
-  content  = aws_instance.project.public_ip
-  filename = "hosts"
-}
+
