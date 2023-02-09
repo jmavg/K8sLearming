@@ -2,25 +2,11 @@
 # Configure basic webservers
 - name: webservers
   hosts: webserver
-  tasks:
-    - name: Set-up Webservers
-      ansible.builtin.include_role:
-        name: webserver
-
-    - name: Restart NGINX
-      ansible.builtin.service:
-        name: nginx
-        state: restarted
+  roles:
+    - webserver
 
 # Configure load balancer
 - name: load balancer
   hosts: loadbalancer
-  tasks:
-    - name: Set-up Load balancer
-      ansible.builtin.include_role:
-        name: loadbalancer
-
-    - name: Restart NGINX
-      ansible.builtin.service:
-        name: nginx
-        state: restarted
+  roles:
+    - loadbalancer  

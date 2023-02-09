@@ -1,8 +1,13 @@
-webserver:
-  hosts:
-    44.195.41.61:
-    3.226.240.151:
+all:
+  children:
+    webserver:
+      hosts:
+        webserver01:
+          ansible_host: 44.195.41.61
+        webserver02: 
+          ansible_host: 3.226.240.151
 
-loadbalancer:
-  hosts:
-    34.231.239.156:
+    loadbalancer:
+      hosts:
+        loadbalancer01:
+          ansible_host: 34.231.239.156
